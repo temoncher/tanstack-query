@@ -8,12 +8,12 @@ import type { InfiniteData } from '@tanstack/query-core'
 describe('Discriminated union return type', () => {
   it('data should be possibly undefined by default', () => {
     const query = reactive(
-      useInfiniteQuery({
+      useInfiniteQuery(() => ({
         queryKey: ['infiniteQuery'],
         queryFn: () => sleep(0).then(() => 'Some data'),
         getNextPageParam: () => undefined,
         initialPageParam: 0,
-      }),
+      })),
     )
 
     // TODO: Order of generics prevents pageParams to be typed correctly. Using `unknown` for now
@@ -24,12 +24,12 @@ describe('Discriminated union return type', () => {
 
   it('data should be defined when query is success', () => {
     const query = reactive(
-      useInfiniteQuery({
+      useInfiniteQuery(() => ({
         queryKey: ['infiniteQuery'],
         queryFn: () => sleep(0).then(() => 'Some data'),
         getNextPageParam: () => undefined,
         initialPageParam: 0,
-      }),
+      })),
     )
 
     if (query.isSuccess) {
@@ -40,12 +40,12 @@ describe('Discriminated union return type', () => {
 
   it('error should be null when query is success', () => {
     const query = reactive(
-      useInfiniteQuery({
+      useInfiniteQuery(() => ({
         queryKey: ['infiniteQuery'],
         queryFn: () => sleep(0).then(() => 'Some data'),
         getNextPageParam: () => undefined,
         initialPageParam: 0,
-      }),
+      })),
     )
 
     if (query.isSuccess) {
@@ -55,12 +55,12 @@ describe('Discriminated union return type', () => {
 
   it('data should be undefined when query is pending', () => {
     const query = reactive(
-      useInfiniteQuery({
+      useInfiniteQuery(() => ({
         queryKey: ['infiniteQuery'],
         queryFn: () => sleep(0).then(() => 'Some data'),
         getNextPageParam: () => undefined,
         initialPageParam: 0,
-      }),
+      })),
     )
 
     if (query.isPending) {
@@ -70,12 +70,12 @@ describe('Discriminated union return type', () => {
 
   it('error should be defined when query is error', () => {
     const query = reactive(
-      useInfiniteQuery({
+      useInfiniteQuery(() => ({
         queryKey: ['infiniteQuery'],
         queryFn: () => sleep(0).then(() => 'Some data'),
         getNextPageParam: () => undefined,
         initialPageParam: 0,
-      }),
+      })),
     )
 
     if (query.isError) {
@@ -90,7 +90,7 @@ describe('Discriminated union return type', () => {
       getNextPageParam: () => undefined,
       initialPageParam: 0,
     }))
-    const query = reactive(useInfiniteQuery(options))
+    const query = reactive(useInfiniteQuery(() => options.value))
 
     if (query.isSuccess) {
       expectTypeOf(query.data).toEqualTypeOf<InfiniteData<string, unknown>>()
@@ -106,7 +106,7 @@ describe('Discriminated union return type', () => {
         initialPageParam: 0,
       }),
     )
-    const query = reactive(useInfiniteQuery(options))
+    const query = reactive(useInfiniteQuery(() => options.value))
 
     if (query.isSuccess) {
       expectTypeOf(query.data).toEqualTypeOf<InfiniteData<string, unknown>>()

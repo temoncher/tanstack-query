@@ -3,20 +3,12 @@ import { useBaseQuery } from './useBaseQuery'
 import type {
   DefaultError,
   DefinedQueryObserverResult,
-  Enabled,
   InitialDataFunction,
   NonUndefinedGuard,
   QueryKey,
   QueryObserverOptions,
 } from '@tanstack/query-core'
 import type { UseBaseQueryReturnType } from './useBaseQuery'
-import type {
-  DeepUnwrapRef,
-  MaybeRef,
-  MaybeRefDeep,
-  MaybeRefOrGetter,
-  ShallowOption,
-} from './types'
 import type { QueryClient } from './queryClient'
 
 export type UseQueryOptions<
@@ -25,34 +17,7 @@ export type UseQueryOptions<
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
-> = MaybeRef<
-  {
-    [Property in keyof QueryObserverOptions<
-      TQueryFnData,
-      TError,
-      TData,
-      TQueryData,
-      TQueryKey
-    >]: Property extends 'enabled'
-      ?
-          | MaybeRefOrGetter<boolean | undefined>
-          | (() => Enabled<
-              TQueryFnData,
-              TError,
-              TQueryData,
-              DeepUnwrapRef<TQueryKey>
-            >)
-      : MaybeRefDeep<
-          QueryObserverOptions<
-            TQueryFnData,
-            TError,
-            TData,
-            TQueryData,
-            DeepUnwrapRef<TQueryKey>
-          >[Property]
-        >
-  } & ShallowOption
->
+> = QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
 
 export type UndefinedInitialQueryOptions<
   TQueryFnData = unknown,
@@ -94,7 +59,12 @@ export function useQuery<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  options: DefinedInitialQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+  options: () => DefinedInitialQueryOptions<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryKey
+  >,
   queryClient?: QueryClient,
 ): UseQueryDefinedReturnType<TData, TError>
 
@@ -104,7 +74,12 @@ export function useQuery<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  options: UndefinedInitialQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+  options: () => UndefinedInitialQueryOptions<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryKey
+  >,
   queryClient?: QueryClient,
 ): UseQueryReturnType<TData, TError>
 
@@ -114,7 +89,7 @@ export function useQuery<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  options: UseQueryOptions<
+  options: () => UseQueryOptions<
     TQueryFnData,
     TError,
     TData,
@@ -130,7 +105,7 @@ export function useQuery<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  options: UseQueryOptions<
+  options: () => UseQueryOptions<
     TQueryFnData,
     TError,
     TData,

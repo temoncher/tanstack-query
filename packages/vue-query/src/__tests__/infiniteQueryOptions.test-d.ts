@@ -31,12 +31,13 @@ describe('infiniteQueryOptions', () => {
     })
   })
   it('should work when passed to useInfiniteQuery', () => {
-    const options = infiniteQueryOptions({
-      queryKey: ['key'],
-      queryFn: () => Promise.resolve('string'),
-      getNextPageParam: () => 1,
-      initialPageParam: 1,
-    })
+    const options = () =>
+      infiniteQueryOptions({
+        queryKey: ['key'],
+        queryFn: () => Promise.resolve('string'),
+        getNextPageParam: () => 1,
+        initialPageParam: 1,
+      })
 
     const { data } = reactive(useInfiniteQuery(options))
 

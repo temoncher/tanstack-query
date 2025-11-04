@@ -11,7 +11,7 @@ import {
 } from 'vue-demi'
 import { shouldThrowError } from '@tanstack/query-core'
 import { useQueryClient } from './useQueryClient'
-import { cloneDeepUnref, updateState } from './utils'
+import { updateState } from './utils'
 import type { Ref } from 'vue-demi'
 import type {
   DefaultedQueryObserverOptions,
@@ -22,7 +22,6 @@ import type {
 import type { QueryClient } from './queryClient'
 import type { UseQueryOptions } from './useQuery'
 import type { UseInfiniteQueryOptions } from './useInfiniteQuery'
-import type { MaybeRefOrGetter } from './types'
 
 export type UseBaseQueryReturnType<
   TData,
@@ -59,15 +58,13 @@ export function useBaseQuery<
   TPageParam,
 >(
   Observer: typeof QueryObserver,
-  options: MaybeRefOrGetter<
-    UseQueryOptionsGeneric<
-      TQueryFnData,
-      TError,
-      TData,
-      TQueryData,
-      TQueryKey,
-      TPageParam
-    >
+  options: () => UseQueryOptionsGeneric<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryData,
+    TQueryKey,
+    TPageParam
   >,
   queryClient?: QueryClient,
 ): UseBaseQueryReturnType<TData, TError> {
@@ -82,11 +79,7 @@ export function useBaseQuery<
   const client = queryClient || useQueryClient()
 
   const defaultedOptions = computed(() => {
-    const clonedOptions = cloneDeepUnref(options as any)
-
-    if (typeof clonedOptions.enabled === 'function') {
-      clonedOptions.enabled = clonedOptions.enabled()
-    }
+    const clonedOptions = options()
 
     const defaulted: DefaultedQueryObserverOptions<
       TQueryFnData,
