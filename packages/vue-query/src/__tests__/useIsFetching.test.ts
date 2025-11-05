@@ -17,14 +17,14 @@ describe('useIsFetching', () => {
   })
 
   test('should properly return isFetching state', async () => {
-    const { isFetching: isFetchingQuery } = useQuery({
+    const { isFetching: isFetchingQuery } = useQuery(() => ({
       queryKey: ['isFetching1'],
       queryFn: () => sleep(0).then(() => 'Some data'),
-    })
-    useQuery({
+    }))
+    useQuery(() => ({
       queryKey: ['isFetching2'],
       queryFn: () => sleep(0).then(() => 'Some data'),
-    })
+    }))
     const isFetching = useIsFetching()
 
     expect(isFetchingQuery.value).toStrictEqual(true)
@@ -42,10 +42,10 @@ describe('useIsFetching', () => {
     >
     onScopeDisposeMock.mockImplementation((fn) => fn())
 
-    const { status } = useQuery({
+    const { status } = useQuery(() => ({
       queryKey: ['onScopeDispose'],
       queryFn: () => sleep(0).then(() => 'Some data'),
-    })
+    }))
     const isFetching = useIsFetching()
 
     expect(status.value).toStrictEqual('pending')
@@ -66,7 +66,7 @@ describe('useIsFetching', () => {
 
   test('should properly update filters', async () => {
     const filter = reactive({ stale: false })
-    useQuery({
+    useQuery(() => ({
       queryKey: ['isFetching'],
       queryFn: () =>
         new Promise((resolve) => {
@@ -74,7 +74,7 @@ describe('useIsFetching', () => {
             return resolve('Some data')
           }, 100)
         }),
-    })
+    }))
     const isFetching = useIsFetching(filter)
 
     expect(isFetching.value).toStrictEqual(0)

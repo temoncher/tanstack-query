@@ -311,10 +311,10 @@ describe('VueQueryPlugin', () => {
       const fnSpy = vi.fn()
 
       const query = useQuery(
-        {
+        () => ({
           queryKey: ['persist'],
           queryFn: fnSpy,
-        },
+        }),
         customClient,
       )
 
@@ -361,22 +361,22 @@ describe('VueQueryPlugin', () => {
       const fnSpy = vi.fn()
 
       const query = useQuery(
-        {
+        () => ({
           queryKey: ['persist1'],
           queryFn: fnSpy,
-        },
+        }),
         customClient,
       )
 
       const queries = useQueries(
-        {
+        () => ({
           queries: [
             {
               queryKey: ['persist2'],
               queryFn: fnSpy,
             },
           ],
-        },
+        }),
         customClient,
       )
 

@@ -19,7 +19,7 @@ describe('useQueries', () => {
   })
 
   test('should return result for each query', () => {
-    const queries = [
+    const queries = () => [
       {
         queryKey: ['key1'],
         queryFn: () => sleep(0).then(() => 'Some data'),
@@ -29,7 +29,7 @@ describe('useQueries', () => {
         queryFn: () => sleep(0).then(() => 'Some data'),
       },
     ]
-    const queriesState = useQueries({ queries })
+    const queriesState = useQueries(() => ({ queries: queries() }))
 
     expect(queriesState.value).toMatchObject([
       {
@@ -48,7 +48,7 @@ describe('useQueries', () => {
   })
 
   test('should resolve to success and update reactive state', async () => {
-    const queries = [
+    const queries = () => [
       {
         queryKey: ['key11'],
         queryFn: () => sleep(0).then(() => 'Some data'),
@@ -58,7 +58,7 @@ describe('useQueries', () => {
         queryFn: () => sleep(0).then(() => 'Some data'),
       },
     ]
-    const queriesState = useQueries({ queries })
+    const queriesState = useQueries(() => ({ queries: queries() }))
 
     await vi.advanceTimersByTimeAsync(0)
 
@@ -79,7 +79,7 @@ describe('useQueries', () => {
   })
 
   test('should reject one of the queries and update reactive state', async () => {
-    const queries = [
+    const queries = () => [
       {
         queryKey: ['key21'],
         queryFn: () =>
@@ -90,7 +90,7 @@ describe('useQueries', () => {
         queryFn: () => sleep(0).then(() => 'Some data'),
       },
     ]
-    const queriesState = useQueries({ queries })
+    const queriesState = useQueries(() => ({ queries: queries() }))
 
     await vi.advanceTimersByTimeAsync(0)
 
@@ -125,7 +125,7 @@ describe('useQueries', () => {
         queryFn: () => sleep(0).then(() => 'value33'),
       },
     ])
-    const queriesState = useQueries({ queries })
+    const queriesState = useQueries(() => ({ queries: queries.value }))
 
     await vi.advanceTimersByTimeAsync(0)
 
@@ -170,7 +170,7 @@ describe('useQueries', () => {
     >
     onScopeDisposeMock.mockImplementationOnce((fn) => fn())
 
-    const queries = [
+    const queries = () => [
       {
         queryKey: ['key41'],
         queryFn: () => sleep(0).then(() => 'Some data'),
@@ -180,7 +180,7 @@ describe('useQueries', () => {
         queryFn: () => sleep(0).then(() => 'Some data'),
       },
     ]
-    const queriesState = useQueries({ queries })
+    const queriesState = useQueries(() => ({ queries: queries() }))
     await vi.advanceTimersByTimeAsync(0)
 
     expect(queriesState.value).toMatchObject([
@@ -201,7 +201,7 @@ describe('useQueries', () => {
 
   test('should use queryClient provided via options', async () => {
     const queryClient = new QueryClient()
-    const queries = [
+    const queries = () => [
       {
         queryKey: ['key41'],
         queryFn: () => sleep(0).then(() => 'Some data'),
@@ -212,7 +212,7 @@ describe('useQueries', () => {
       },
     ]
 
-    useQueries({ queries }, queryClient)
+    useQueries(() => ({ queries: queries() }), queryClient)
     await vi.advanceTimersByTimeAsync(0)
 
     expect(useQueryClient).toHaveBeenCalledTimes(0)
@@ -223,7 +223,7 @@ describe('useQueries', () => {
     const secondResult = 'second result'
 
     const queryClient = new QueryClient()
-    const queries = [
+    const queries = () => [
       {
         queryKey: ['key41'],
         queryFn: () => sleep(0).then(() => firstResult),
@@ -235,15 +235,15 @@ describe('useQueries', () => {
     ]
 
     const queriesResult = useQueries(
-      {
-        queries,
+      () => ({
+        queries: queries(),
         combine: (results) => {
           return {
             combined: true,
             res: results.map((res) => res.data),
           }
         },
-      },
+      }),
       queryClient,
     )
     await vi.advanceTimersByTimeAsync(0)
@@ -258,7 +258,7 @@ describe('useQueries', () => {
     const fetchFn = vi.fn()
     const checked = ref(false)
 
-    useQueries({
+    useQueries(() => ({
       queries: [
         {
           queryKey: ['enabled'],
@@ -266,7 +266,7 @@ describe('useQueries', () => {
           enabled: () => checked.value,
         },
       ],
-    })
+    }))
 
     expect(fetchFn).not.toHaveBeenCalled()
 
@@ -282,14 +282,14 @@ describe('useQueries', () => {
     const key1 = ref('key1')
     const key2 = ref('key2')
 
-    useQueries({
+    useQueries(() => ({
       queries: [
         {
           queryKey: ['key', () => key1.value, () => key2.value],
           queryFn: fetchFn,
         },
       ],
-    })
+    }))
 
     expect(fetchFn).toHaveBeenCalledTimes(1)
 
@@ -314,12 +314,12 @@ describe('useQueries', () => {
     const key4 = ref('key4')
     const key5 = ref('key5')
 
-    useQueries({
+    useQueries(() => ({
       queries: [
         {
           queryKey: [
             'key',
-            key1,
+            key1.value,
             () => key2.value,
             { key: () => key3.value },
             [{ foo: { bar: () => key4.value } }],
@@ -334,7 +334,7 @@ describe('useQueries', () => {
           queryFn: fetchFn,
         },
       ],
-    })
+    }))
 
     expect(fetchFn).toHaveBeenCalledTimes(1)
 

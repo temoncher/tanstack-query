@@ -6,12 +6,10 @@ import {
   readonly,
   shallowReadonly,
   shallowRef,
-  unref,
   watch,
 } from 'vue-demi'
 
 import { useQueryClient } from './useQueryClient'
-import { cloneDeepUnref } from './utils'
 import type { Ref } from 'vue-demi'
 import type {
   DefaultError,
@@ -24,7 +22,7 @@ import type {
 } from '@tanstack/query-core'
 import type { UseQueryOptions } from './useQuery'
 import type { QueryClient } from './queryClient'
-import type { DeepUnwrapRef, MaybeRefDeep, ShallowOption } from './types'
+import type { ShallowOption } from './types'
 
 // This defines the `UseQueryOptions` that are accepted in `QueriesOptions` & `GetOptions`.
 // `placeholderData` function does not have a parameter
@@ -235,17 +233,10 @@ export function useQueries<
   T extends Array<any>,
   TCombinedResult = UseQueriesResults<T>,
 >(
-  {
-    queries,
-    ...options
-  }: ShallowOption & {
+  queriesOptions: () => ShallowOption & {
     queries:
-      | MaybeRefDeep<UseQueriesOptionsArg<T>>
-      | MaybeRefDeep<
-          readonly [
-            ...{ [K in keyof T]: GetUseQueryOptionsForUseQueries<T[K]> },
-          ]
-        >
+      | UseQueriesOptionsArg<T>
+      | readonly [...{ [K in keyof T]: GetUseQueryOptionsForUseQueries<T[K]> }]
     combine?: (result: UseQueriesResults<T>) => TCombinedResult
   },
   queryClient?: QueryClient,
@@ -259,20 +250,11 @@ export function useQueries<
   }
 
   const client = queryClient || useQueryClient()
+  const options = computed(queriesOptions)
 
   const defaultedQueries = computed(() => {
-    // Only unref the top level array.
-    const queriesRaw = unref(queries) as ReadonlyArray<any>
-
-    // Unref the rest for each element in the top level array.
-    return queriesRaw.map((queryOptions) => {
-      const clonedOptions = cloneDeepUnref(queryOptions)
-
-      if (typeof clonedOptions.enabled === 'function') {
-        clonedOptions.enabled = queryOptions.enabled()
-      }
-
-      const defaulted = client.defaultQueryOptions(clonedOptions)
+    return options.value.queries.map((queryOptions) => {
+      const defaulted = client.defaultQueryOptions(queryOptions)
       defaulted._optimisticResults = client.isRestoring?.value
         ? 'isRestoring'
         : 'optimistic'
@@ -345,7 +327,7 @@ export function useQueries<
     unsubscribe()
   })
 
-  return options.shallow
+  return options.value.shallow
     ? shallowReadonly(state)
     : (readonly(state) as Readonly<Ref<TCombinedResult>>)
 }

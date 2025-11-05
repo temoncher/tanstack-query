@@ -15,13 +15,13 @@ describe('useQuery', () => {
   })
 
   test('should properly execute infinite query', async () => {
-    const { data, fetchNextPage, status } = useInfiniteQuery({
+    const { data, fetchNextPage, status } = useInfiniteQuery(() => ({
       queryKey: ['infiniteQuery'],
       queryFn: ({ pageParam }) =>
         sleep(0).then(() => 'data on page ' + pageParam),
       initialPageParam: 0,
       getNextPageParam: () => 12,
-    })
+    }))
 
     expect(data.value).toStrictEqual(undefined)
     expect(status.value).toStrictEqual('pending')
@@ -45,13 +45,14 @@ describe('useQuery', () => {
     expect(status.value).toStrictEqual('success')
   })
   test('should properly execute infinite query using infiniteQueryOptions', async () => {
-    const options = infiniteQueryOptions({
-      queryKey: ['infiniteQueryOptions'],
-      queryFn: ({ pageParam }) =>
-        sleep(0).then(() => 'data on page ' + pageParam),
-      initialPageParam: 0,
-      getNextPageParam: () => 12,
-    })
+    const options = () =>
+      infiniteQueryOptions({
+        queryKey: ['infiniteQueryOptions'],
+        queryFn: ({ pageParam }) =>
+          sleep(0).then(() => 'data on page ' + pageParam),
+        initialPageParam: 0,
+        getNextPageParam: () => 12,
+      })
 
     const { data, fetchNextPage, status } = useInfiniteQuery(options)
 

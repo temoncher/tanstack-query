@@ -27,10 +27,11 @@ describe('queryOptions', () => {
     })
   })
   it('should work when passed to useQuery', () => {
-    const options = queryOptions({
-      queryKey: ['key'],
-      queryFn: () => Promise.resolve(5),
-    })
+    const options = () =>
+      queryOptions({
+        queryKey: ['key'],
+        queryFn: () => Promise.resolve(5),
+      })
 
     const { data } = reactive(useQuery(options))
     expectTypeOf(data).toEqualTypeOf<number | undefined>()
@@ -127,7 +128,7 @@ describe('queryOptions', () => {
 
   it('TData should always be defined when initialData is provided as a function which ALWAYS returns the data', () => {
     const { data } = reactive(
-      useQuery(
+      useQuery(() =>
         queryOptions({
           queryKey: ['key'],
           queryFn: () => {
@@ -147,7 +148,7 @@ describe('queryOptions', () => {
 
   it('TData should have undefined in the union when initialData is NOT provided', () => {
     const { data } = reactive(
-      useQuery(
+      useQuery(() =>
         queryOptions({
           queryKey: ['key'],
           queryFn: () => {
@@ -164,7 +165,7 @@ describe('queryOptions', () => {
 
   it('TData should have undefined in the union when initialData is provided as a function which can return undefined', () => {
     const { data } = reactive(
-      useQuery(
+      useQuery(() =>
         queryOptions({
           queryKey: ['key'],
           queryFn: () => {
@@ -182,7 +183,7 @@ describe('queryOptions', () => {
 
   it('TData should be narrowed after an isSuccess check when initialData is provided as a function which can return undefined', () => {
     const { data, isSuccess } = reactive(
-      useQuery(
+      useQuery(() =>
         queryOptions({
           queryKey: ['key'],
           queryFn: () => {
@@ -202,7 +203,7 @@ describe('queryOptions', () => {
 
   it('data should not have undefined when initialData is provided', () => {
     const { data } = reactive(
-      useQuery(
+      useQuery(() =>
         queryOptions({
           queryKey: ['query-key'],
           initialData: 42,
